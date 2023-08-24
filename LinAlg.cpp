@@ -7,40 +7,34 @@
 #include "D2array.h"
 #include "LinAlg.h"
 template <class T>
-class Ndarray;
+class D2array;
 namespace LinAlg{
 template <class T>
-Ndarray<T> REF(const Ndarray<T> &ndarray) {
-    Ndarray<T> ndarrayc=ndarray;
-    if (ndarrayc.pivoted != true) {
-        ndarrayc.partial_pivot();
+D2array<T> REF(const D2array<T> &d2array) {
+    D2array<T> d2arrayc = d2array;
+    if (d2arrayc.pivoted != true) {
+        d2arrayc.partial_pivot();
     }
-    // two sub routines within this loop: 
-    // 1) normalize the leading value of the column
-    for (int i = 0; i < ndarrayc.col; i++) {
-        for (int j = i; j < ndarrayc.row; j++) {
-            // helps with readability and removes infintensal values. 
-            if (std::abs(ndarrayc[j * ndarrayc.col + i]) < 0.000005) {
-                ndarrayc[j * ndarrayc.col + i] = 0;
+    for (int i = 0; i < d2arrayc.col; i++) {
+        for (int j = i; j < d2arrayc.row; j++) {
+            if (std::abs(d2arrayc[j * d2arrayc.col + i]) < 0.000005) {
+                d2arrayc[j * d2arrayc.col + i] = 0;
             }
-            //prevents unstable operations
-            if (ndarrayc[j * ndarrayc.col + i] == 0) {
+            if (d2arrayc[j * d2arrayc.col + i] == 0) {
                 break;
             }
-            T norm_coef = 1 / ndarrayc[j * ndarrayc.col + i];
-            for (int r = 0; r < ndarrayc.col; r++) {
-                ndarrayc[j * ndarrayc.row + r] *= norm_coef;
+            T norm_coef = 1 / d2arrayc[j * d2arrayc.col + i];
+            for (int r = 0; r < d2arrayc.col; r++) {
+                d2arrayc[j * d2arrayc.row + r] *= norm_coef;
             }
         }
-        // 2) subtract the above column from the columns below
         T break_condition = 0;
-        for (int row = i + 1; row < ndarrayc.row; row++) {
-            for (int col = 0; col < ndarrayc.col; col++) {
-                ndarrayc[row * ndarrayc.col + col] = ndarrayc[row * ndarrayc.col + col] - ndarrayc[i * ndarrayc.col + col];
-                break_condition += std::abs(ndarrayc[row * ndarrayc.col + col]);
-                // this condition is to remove infintensal values. 
-                if (std::abs(ndarrayc[row * ndarrayc.col + col]) < 0.000005) {
-                    ndarrayc[row * ndarrayc.col + col] = 0;
+        for (int row = i + 1; row < d2arrayc.row; row++) {
+            for (int col = 0; col < d2arrayc.col; col++) {
+                d2arrayc[row * d2arrayc.col + col] -= d2arrayc[i * d2arrayc.col + col];
+                break_condition += std::abs(d2arrayc[row * d2arrayc.col + col]);
+                if (std::abs(d2arrayc[row * d2arrayc.col + col]) < 0.000005) {
+                    d2arrayc[row * d2arrayc.col + col] = 0;
                 }
             }
         }
@@ -48,56 +42,52 @@ Ndarray<T> REF(const Ndarray<T> &ndarray) {
             break;
         }
     }
-    return ndarrayc;
+    return d2arrayc;
 }
-//reverse iteration needs more work done to be more correct
-//needs help with number percision (1.0000e-16 should just be set to 0)
-//need to fix the scalar magnitude when reverse iterating through the loop
-//break condition is removed
+
 template <class T>
-Ndarray<T> RREF(Ndarray<T> ndarray){
-    if(ndarray.pivoted != true){
-        ndarray.partial_pivot();
+D2array<T> RREF(D2array<T> d2array){
+    if (d2array.pivoted != true) {
+        d2array.partial_pivot();
     }
-    for(int i = 0; i<ndarray.col; i++){
-        for(int j =i; j<ndarray.row; j++){
-            if (std::abs(ndarray[j * ndarray.col + i]) < 0.000005) {
-                ndarray[j * ndarray.col + i] = 0;
+    for (int i = 0; i < d2array.col; i++) {
+        for (int j = i; j < d2array.row; j++) {
+            if (std::abs(d2array[j * d2array.col + i]) < 0.000005) {
+                d2array[j * d2array.col + i] = 0;
             }
-            //prevents unstable operations
-            if (ndarray[j * ndarray.col + i] == 0) {
+            if (d2array[j * d2array.col + i] == 0) {
                 break;
             }
-            T norm_coef = 1/ndarray[j*ndarray.col + i];
-            for(int r =0; r<ndarray.col; r++){
-                ndarray[j * ndarray.row + r] *=norm_coef;
+            T norm_coef = 1 / d2array[j * d2array.col + i];
+            for (int r = 0; r < d2array.col; r++) {
+                d2array[j * d2array.row + r] *= norm_coef;
             }
         }
-        T break_condition=0;
-        for(int row=i+1; row< ndarray.row; row++){
-            for(int col=0; col<ndarray.col; col++){
-                ndarray[row*ndarray.col + col] = ndarray[row*ndarray.col + col] - ndarray[i*ndarray.col + col];
-                break_condition+=std::abs(ndarray[row*ndarray.col + col]);
-                if (std::abs(ndarray[row * ndarray.col + col]) < 0.000005) {
-                    ndarray[row * ndarray.col + col] = 0;
+        T break_condition = 0;
+        for (int row = i + 1; row < d2array.row; row++) {
+            for (int col = 0; col < d2array.col; col++) {
+                d2array[row * d2array.col + col] -= d2array[i * d2array.col + col];
+                break_condition += std::abs(d2array[row * d2array.col + col]);
+                if (std::abs(d2array[row * d2array.col + col]) < 0.000005) {
+                    d2array[row * d2array.col + col] = 0;
                 }
             }   
         }
-        if(break_condition==0){
+        if (break_condition == 0) {
             break;
         }
     }
-    for (int i = ndarray.col - 1; i >= 0; i--) {
-    T break_condition = 0;
-    for (int row = i - 1; row >= 0; row--) {
-        T factor = ndarray[row * ndarray.col + i];
-        for (int col = 0; col < ndarray.col; col++) {
-            ndarray[row * ndarray.col + col] -= factor * ndarray[i * ndarray.col + col];
-            break_condition += std::abs(ndarray[row * ndarray.col + col]);
+    for (int i = d2array.col - 1; i >= 0; i--) {
+        T break_condition = 0;
+        for (int row = i - 1; row >= 0; row--) {
+            T factor = d2array[row * d2array.col + i];
+            for (int col = 0; col < d2array.col; col++) {
+                d2array[row * d2array.col + col] -= factor * d2array[i * d2array.col + col];
+                break_condition += std::abs(d2array[row * d2array.col + col]);
+            }
         }
     }
-}
-    return ndarray; 
+    return d2array; 
 }
 }
 #endif
