@@ -29,7 +29,7 @@ public:
     void partial_pivot();
     D2array<T> get_column(const int input_col);
     D2array<T> get_row(const int input_row);
-    D2array<T> partial_pivot(Ndarray<T> ndarray);
+    D2array<T> partial_pivot(D2array<T> d2array);
     void row_subtract(int arg1, int arg2);
     void swap(int arg1, int arg2);
     //overloads
