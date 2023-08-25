@@ -9,5 +9,5 @@ int main(){
     (Mat_PLU.lower).print();
     (Mat_PLU.upper).print();
     (Mat_PLU.perm).print();
-    (Mat_PLU.upper*Mat_PLU.lower).print();
+    (Mat_PLU.lower*Mat_PLU.upper).print();
 }
