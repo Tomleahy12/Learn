@@ -33,13 +33,12 @@ D2array<T> partial_pivot(D2array<T> d2array){
     
     return Permutation;
 }
-
+// need new pivot that modifies the original function and returns permutation matrix
 template <class T>
 PLU<T> PLU_decomp(const D2array<T>& d2array) {
     D2array<T> upper = d2array;  // Changed variable name from d2arrayc to upper
     D2array<T> permutation_matrix = partial_pivot(upper);
     upper.partial_pivot(); 
-    upper.print();
     D2array<T> lower = upper.d2_identity(upper.row);
     for (int i = 0; i < upper.row - 1; i++) {  // Change upper.col to upper.row - 1
         for (int j = i + 1; j < upper.row; j++) {
