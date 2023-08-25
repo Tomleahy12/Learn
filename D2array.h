@@ -226,6 +226,7 @@ void D2array<T>::transpose(){
         }
     std::cout<<'\n'; 
 }
+// needs fixing
 template<class T>
 void D2array<T>::partial_pivot(){
 	if(row != col){
@@ -245,6 +246,7 @@ void D2array<T>::partial_pivot(){
 	}
     pivoted = true;
 }
+// needs fixing
 template<class T>
 D2array<T> partial_pivot(D2array<T> d2array){
 	if(d2array.row != d2array.col){
