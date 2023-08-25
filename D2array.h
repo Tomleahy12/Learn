@@ -29,7 +29,7 @@ public:
     void partial_pivot();
     D2array<T> get_column(const int input_col);
     D2array<T> get_row(const int input_row);
-    D2array<T> partial_pivot(D2array<T> d2array);
+
     void row_subtract(int arg1, int arg2);
     void swap(int arg1, int arg2);
     //overloads
@@ -238,37 +238,15 @@ void D2array<T>::partial_pivot(){
 		for(int j = i+1; j<row; j++){
             if(std::abs(col[j]) > max_abs){
                 max_abs = std::abs(col[j]);
-            if(j!=i){
-                this->swap(i,j); 
-                }
+                if(j!=i){
+                    this->swap(i,j); 
+                    }
             }
 		}
 	}
     pivoted = true;
 }
-// needs fixing
-template<class T>
-D2array<T> partial_pivot(D2array<T> d2array){
-	if(d2array.row != d2array.col){
-		throw std::invalid_argument("*** non square input for reduction.");
-	}
-	D2array<T> Permutation = d2array.d2_identity(d2array.col); 
-	for(int i = 0; i < d2array.col; i++){
-		D2array<T> col = d2array.get_column(i);
-        T max_abs = std::abs(col[0]);
-		for(int j = i+1; j<d2array.row; j++){
-            if(std::abs(col[j]) > max_abs){
-                max_abs = std::abs(col[j]);
-            if(j != i){               
-                d2array.swap(i,j); 
-				Permutation.swap(i,j);
-                }
-            }
-		}
-	}
-    d2array.pivoted = true;
-    return Permutation;
-}
+
 template <class T> 
 D2array<T> D2array<T>::d2_identity(int dimensions){ 
 	D2array<T> identity(dimensions,dimensions); 
