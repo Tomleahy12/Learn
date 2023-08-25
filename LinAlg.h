@@ -15,7 +15,7 @@ namespace LinAlg{
         D2array<T> perm;
     };
     template<class T>
-    PLU<T> reduce(const D2array<T> &d2array);
+    PLU<T> PLU_decomp(const D2array<T> &d2array);
     template<class T>
     D2array<T> REF(const D2array<T> &d2array);
     template<class T>
