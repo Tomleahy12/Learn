@@ -10,7 +10,6 @@ template <class T>
 class D2array;
 namespace LinAlg{
 // functions need work to improve and fix accuracy + review of algorithms
-
 template<class T>
 D2array<T> partial_pivot(D2array<T> d2array){
 	if(d2array.row != d2array.col){
