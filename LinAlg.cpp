@@ -10,113 +10,112 @@ template <class T>
 class D2array;
 namespace LinAlg{
 // functions need work to improve and fix accuracy + review of algorithms
+
+template<class T>
+D2array<T> partial_pivot(D2array<T> d2array){
+	if(d2array.row != d2array.col){
+		throw std::invalid_argument("*** non square input for reduction.");
+	}
+	D2array<T> Permutation = d2array.d2_identity(d2array.col); 
+	for(int i = 0; i < d2array.col; i++){
+		D2array<T> col = d2array.get_column(i);
+        T max_abs = std::abs(col[0]);
+		for(int j = i+1; j<d2array.row; j++){
+            if(std::abs(col[j]) > max_abs){
+                max_abs = std::abs(col[j]);
+            if(j != i){               
+                d2array.swap(i,j); 
+				Permutation.swap(i,j);
+                }
+            }
+		}
+	}
+    
+    return Permutation;
+}
+
 template <class T>
 PLU<T> PLU_decomp(const D2array<T>& d2array) {
-    // Returns an upper triangular matrix;
-    // Returns an upper triangular matrix with 1's on the main diag.
     D2array<T> upper = d2array;  // Changed variable name from d2arrayc to upper
-    if (upper.pivoted != true) {
-        upper.partial_pivot();
-    }
     D2array<T> permutation_matrix = partial_pivot(upper);
-
+    upper.partial_pivot(); 
+    upper.print();
     D2array<T> lower = upper.d2_identity(upper.row);
     for (int i = 0; i < upper.row - 1; i++) {  // Change upper.col to upper.row - 1
         for (int j = i + 1; j < upper.row; j++) {
+            if(upper[i * upper.col + i] == 0){
+                break;
+            }
             T norm_coef = upper[j * upper.col + i] / upper[i * upper.col + i];
             lower[j * upper.col + i] = norm_coef;
             for (int r = i; r < upper.col; r++) {  // Change j to i here
-                upper[j * upper.col + r] -= norm_coef * upper[i * upper.col + r];
+                upper[j * upper.col + r] = upper[j * upper.col + r] - norm_coef * upper[i * upper.col + r];
             }
         }
-        std::cout << "\t iteration i completed:   " << i << '\n';
-        std::cout << "\t Upper Matrice:" << '\n';
-        upper.print();
     }
-
     PLU<T> result; 
     result.upper = upper; 
     result.lower = lower; 
     result.perm = permutation_matrix; 
     return result;
 }
-
-//older functions
-template <class T>
-D2array<T> REF(const D2array<T> &d2array) {
-    // returns an upper trianglular matrix with 1's on the main diag.
-    D2array<T> d2arrayc = d2array;
-    if (d2arrayc.pivoted != true) {
-        d2arrayc.partial_pivot();
-    }
-    for (int i = 0; i < d2arrayc.col; i++) {
-        for (int j = i; j < d2arrayc.row; j++) {
-            if (std::abs(d2arrayc[j * d2arrayc.col + i]) < 0.000005) {
-                d2arrayc[j * d2arrayc.col + i] = 0;
-            }
-            if (d2arrayc[j * d2arrayc.col + i] == 0) {
-                break;
-            }
-            T norm_coef = 1 / d2arrayc[j * d2arrayc.col + i];
-            for (int r = 0; r < d2arrayc.col; r++) {
-                d2arrayc[j * d2arrayc.row + r] *= norm_coef;
-            }
-        }
-        for (int row = i + 1; row < d2arrayc.row; row++) {
-            for (int col = 0; col < d2arrayc.col; col++) {
-                d2arrayc[row * d2arrayc.col + col] -= d2arrayc[i * d2arrayc.col + col];
-                if (std::abs(d2arrayc[row * d2arrayc.col + col]) < 0.000005) {
-                    d2arrayc[row * d2arrayc.col + col] = 0;
+// Gauss needs testing.
+template<class T>
+D2array<T> reduce(const D2array<T> &d2array, bool ones, bool modify, bool get_lower){
+        if(ones == false && modify == false){
+            D2array<T> d2array_copy = d2array;
+            for (int i = 0; i < d2array_copy.row - 1; i++) {  // Change upper.col to upper.row - 1
+                for (int j = i + 1; j < d2array_copy.row; j++) {
+                    T norm_coef = d2array_copy[j * d2array_copy.col + i] / d2array_copy[i * d2array_copy.col + i];
+                    for (int r = i; r < d2array_copy.col; r++) {  // Change j to i here
+                        d2array_copy[j * d2array_copy.col + r] = d2array_copy[j * d2array_copy.col + r] - norm_coef * d2array_copy[i * d2array_copy.col + r];
+                    }
                 }
             }
+            return d2array_copy;
         }
-    }
-    return d2arrayc;
-}
-
-template <class T>
-D2array<T> RREF(D2array<T> d2array){
-    if (d2array.pivoted != true) {
-        d2array.partial_pivot();
-    }
-    for (int i = 0; i < d2array.col; i++) {
-        for (int j = i; j < d2array.row; j++) {
-            if (std::abs(d2array[j * d2array.col + i]) < 0.000005) {
-                d2array[j * d2array.col + i] = 0;
-            }
-            if (d2array[j * d2array.col + i] == 0) {
-                break;
-            }
-            T norm_coef = 1 / d2array[j * d2array.col + i];
-            for (int r = 0; r < d2array.col; r++) {
-                d2array[j * d2array.row + r] *= norm_coef;
-            }
-        }
-        T break_condition = 0;
-        for (int row = i + 1; row < d2array.row; row++) {
-            for (int col = 0; col < d2array.col; col++) {
-                d2array[row * d2array.col + col] -= d2array[i * d2array.col + col];
-                break_condition += std::abs(d2array[row * d2array.col + col]);
-                if (std::abs(d2array[row * d2array.col + col]) < 0.000005) {
-                    d2array[row * d2array.col + col] = 0;
+        else if(ones == true && modify == true){
+            for (int i = 0; i < d2array.row - 1; i++) {  // Change upper.col to upper.row - 1
+                for (int j = i + 1; j < d2array.row; j++) {
+                    T norm_coef = 1/ d2array[j * d2array.col + i];
+                    for (int r = i; r < d2array.col; r++) {  // Change j to i here
+                        d2array[j * d2array.col + r] = d2array[j * d2array.col + r] - norm_coef * d2array[i * d2array.col + r];
+                    }
                 }
-            }   
-        }
-        if (break_condition == 0) {
-            break;
-        }
-    }
-    for (int i = d2array.col - 1; i >= 0; i--) {
-        T break_condition = 0;
-        for (int row = i - 1; row >= 0; row--) {
-            T factor = d2array[row * d2array.col + i];
-            for (int col = 0; col < d2array.col; col++) {
-                d2array[row * d2array.col + col] -= factor * d2array[i * d2array.col + col];
-                break_condition += std::abs(d2array[row * d2array.col + col]);
             }
+            return d2array; 
+        }
+        else if(ones == true && modify == false){
+            D2array<T> d2array_copy = d2array;
+            for (int i = 0; i < d2array_copy.row - 1; i++) {  // Change upper.col to upper.row - 1
+                for (int j = i + 1; j < d2array_copy.row; j++) {
+                    T norm_coef = d2array_copy[j * d2array_copy.col + i] / d2array_copy[i * d2array_copy.col + i];
+                    for (int r = i; r < d2array_copy.col; r++) {  // Change j to i here
+                        d2array_copy[j * d2array_copy.col + r] = d2array_copy[j * d2array_copy.col + r] - norm_coef * d2array_copy[i * d2array_copy.col + r];
+                    }
+                }
+            }
+            return d2array_copy;
+        }
+        else if(ones == true && modify == true){
+            for (int i = 0; i < d2array.row - 1; i++) {  // Change upper.col to upper.row - 1
+                for (int j = i + 1; j < d2array.row; j++) {
+                    T norm_coef = 1/d2array[j * d2array.col + i];
+                    for (int r = i; r < d2array.col; r++) {  // Change j to i here
+                        d2array[j * d2array.col + r] = d2array[j * d2array.col + r] - norm_coef * d2array[i * d2array.col + r];
+                    }
+                }
+            }
+            return d2array; 
         }
     }
-    return d2array; 
 }
+template<class T> 
+D2array<T> REF(D2array<T> &d2array){
+    D2array<T> out = reduce(d2array,false,false); 
+}
+template<class T> 
+D2array<T> RREF(D2array<T> &d2array){
+    D2array<T> out = reduce(d2array,true, false); 
 }
 #endif
