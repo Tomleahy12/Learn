@@ -22,10 +22,10 @@ public:
     //destructor
     ~D2array();
     // basic operations
-    D2array<T> transpose(const D2array<T> &2darray);
+    D2array<T> transpose(const D2array<T> &d2array);
     void transpose();
     void print();
-    D2array<T> nd_identity(int dimensions);
+    D2array<T> d2_identity(int dimensions);
     void partial_pivot();
     D2array<T> get_column(const int input_col);
     D2array<T> get_row(const int input_row);
@@ -57,7 +57,7 @@ void D2array<T>::swap(int arg1, int arg2){
         arg1 = temp; 
     }
     for (int i = 0; i < col; i++) {
-        T temp = ndarray[arg1*col + i];
+        T temp = d2array[arg1*col + i];
         d2array[arg1*col + i] = d2array[arg2 * col+ i];
         d2array[arg2*col + i] = temp;
     }
@@ -112,19 +112,19 @@ D2array<T>::D2array(const D2array<T> & other){
     this->col = other.col;
     this->row = other.row; 
     this->pivoted = other.pivoted;
-    this->ndarray = d2array_copy;
+    this->d2array = d2array_copy;
 }
 
 // Operator Overloads defined: 
 template<class T> 
 D2array<T> D2array<T>::operator =(const D2array<T>& d2array){
     if(this!=&d2array){
-        T* d2array_copy = new T[d2array.row * ndarray.col];
-        std::copy(d2array.d2array, d2array.ndarray + (d2array.row * d2array.col), d2array_copy);
+        T* d2array_copy = new T[d2array.row * d2array.col];
+        std::copy(d2array.d2array, d2array.d2array + (d2array.row * d2array.col), d2array_copy);
         this->row = d2array.row;
         this->col = d2array.col;
         this->pivoted = pivoted;
-        this->ndarray = d2array_copy;
+        this->d2array = d2array_copy;
     }
     return *this;
 }
@@ -134,14 +134,14 @@ T& D2array<T>::operator[](const int index){
 }
 template <class T>
 const T& D2array<T>::operator[](const int index) const {
-    return ndarray[index];
+    return d2array[index];
 }
  template<class T> 
  D2array<T> operator +(const D2array<T>& d2array1,const D2array<T>& d2array2){
-    if(d2array1.row!=d2array2.row ^ d2array1.col!=ndarray2.col){
+    if(d2array1.row!=d2array2.row ^ d2array1.col!=d2array2.col){
         throw std::invalid_argument("*** dimensionality error. Expected [m x n] * [n x m]");
     }
-    D2array<T> d2array(ndarray1.row,ndarray1.col);
+    D2array<T> d2array(d2array1.row,d2array1.col);
     for(int i = 0; i<d2array1.row*d2array1.col; i++){
         d2array[i] = d2array1[i]+d2array2[i]; 
     }
@@ -149,7 +149,7 @@ const T& D2array<T>::operator[](const int index) const {
  }
  template<class T> 
  D2array<T> operator -(const D2array<T>&d2array1,const D2array<T>& d2array2){
-    if(ndarray1.row!=ndarray2.row ^ ndarray1.col!=ndarray2.col){
+    if(d2array1.row!=d2array2.row ^ d2array1.col!=d2array2.col){
         throw std::invalid_argument("*** dimensionality error. Expected [m x n] * [n x m]");
     }
     D2array<T> out_d2array(d2array1.row, d2array1.col);
@@ -159,7 +159,7 @@ const T& D2array<T>::operator[](const int index) const {
     return out_d2array;
  }
  template<class T> 
- D2array<T> operator *(const D2array<T>& ndarray1,const D2array<T>& ndarray2){
+ D2array<T> operator *(const D2array<T>& d2array1,const D2array<T>& d2array2){
     if(d2array1.col!=d2array2.row ^ d2array1.row!=d2array2.col){
         throw std::invalid_argument("*** dimensionality error. Expected [m x n] * [n x m]");
     }
@@ -179,7 +179,7 @@ const T& D2array<T>::operator[](const int index) const {
     if(&d2array.col!= vector.row){
         throw std::invalid_argument("*** dimensionality error.expected [m x n] * [n x 1]");
     }
-    D2array<T> new_d2array(ndarray.row,1);
+    D2array<T> new_d2array(d2array.row,1);
     for(int j = 0; j<d2array.col; j++){
         for(int i = 0; i<d2array.row; i++){
             new_d2array[(i * d2array.row) + j] += d2array[(i * d2array.row) + j] * new_vector[i]; 
@@ -250,7 +250,7 @@ D2array<T> partial_pivot(D2array<T> d2array){
 	if(d2array.row != d2array.col){
 		throw std::invalid_argument("*** non square input for reduction.");
 	}
-	D2array<T> Permutation = d2array.nd_identity(d2array.col); 
+	D2array<T> Permutation = d2array.d2_identity(d2array.col); 
 	for(int i = 0; i < d2array.col; i++){
 		D2array<T> col = d2array.get_column(i);
         T max_abs = std::abs(col[0]);
@@ -268,13 +268,14 @@ D2array<T> partial_pivot(D2array<T> d2array){
     return Permutation;
 }
 template <class T> 
-D2array<T> D2array<T>::nd_identity(int dimensions){ 
+D2array<T> D2array<T>::d2_identity(int dimensions){ 
 	D2array<T> identity(dimensions,dimensions); 
 	for(int i =0; i<dimensions; i++){
 		identity[i * dimensions + i] = 1;
 	}
 	return identity;
 }
+
 template <class T>
 void D2array<T>::row_subtract(int arg1, int arg2){
 	// takes the first argument row away from the 2nd argument row
