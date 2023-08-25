@@ -6,14 +6,13 @@
 #include "D2array.h"
 template <class T>
 class Ndarray;
-
 namespace LinAlg{
-    template <class T>
+template <class T>
     struct PLU: public D2array<T>{
         D2array<T> upper; 
         D2array<T> lower;
         D2array<T> perm;
-    };
+    };  
     template<class T>
     D2array<T> reduce(D2array<T> &d2array, bool ones = false, bool modify = false);
     template<class T>
@@ -26,5 +25,4 @@ namespace LinAlg{
     D2array<T> RREF(D2array<T> d2array);
 }
 #include "LinAlg.cpp"
-
 #endif 
